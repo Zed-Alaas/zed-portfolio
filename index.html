@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zed Alaas — Web Developer</title>
+  <meta name="description" content="Zed Alaas — web developer crafting fast, interactive experiences for the modern web." />
+  <meta property="og:title" content="Zed Alaas — Web Developer" />
+  <meta property="og:description" content="Web developer crafting fast, interactive experiences for the modern web." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#0a0a0f" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0f'/%3E%3Ctext x='32' y='44' font-family='monospace' font-size='36' font-weight='700' fill='%23aaff3d' text-anchor='middle'%3EZ%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Grain overlay -->
+  <div class="noise" aria-hidden="true"></div>
+
+  <!-- Scroll progress -->
+  <div class="progress-bar" aria-hidden="true"></div>
+
+  <!-- Preloader -->
+  <div id="preloader" aria-hidden="true">
+    <div class="preloader-inner">
+      <span class="preloader-name">zed.alaas<span class="blink">_</span></span>
+      <span class="preloader-count">0%</span>
+    </div>
+  </div>
+
+  <!-- Custom cursor -->
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+
+  <!-- Toast -->
+  <div class="toast" role="status" aria-live="polite"></div>
+
+  <!-- ============ NAV ============ -->
+  <header class="site-nav">
+    <div class="nav-inner">
+      <a href="#home" class="logo" aria-label="Home">
+        <span class="logo-bracket">&lt;</span>zed.alaas<span class="logo-bracket">/&gt;</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a class="nav-link" href="#about"><span class="slashes">//</span> about</a>
+        <a class="nav-link" href="#skills"><span class="slashes">//</span> skills</a>
+        <a class="nav-link" href="#work"><span class="slashes">//</span> work</a>
+        <a class="nav-link" href="#contact"><span class="slashes">//</span> contact</a>
+      </nav>
+      <div class="nav-right">
+        <span class="status-badge"><span class="dot"></span> available for work</span>
+        <button class="nav-toggle" aria-label="Open menu" aria-expanded="false">
+          <span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" aria-hidden="true">
+    <nav aria-label="Mobile">
+      <a class="mobile-link" href="#about">about</a>
+      <a class="mobile-link" href="#skills">skills</a>
+      <a class="mobile-link" href="#work">work</a>
+      <a class="mobile-link" href="#contact">contact</a>
+    </nav>
+    <span class="mobile-status"><span class="dot"></span> available for work</span>
+  </div>
+
+  <main id="main">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="home">
+      <canvas id="particles" aria-hidden="true"></canvas>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="kicker mono">~/portfolio $ whoami</p>
+          <h1 class="hero-title">
+            <span class="line">ZED</span>
+            <span class="line line--outline">ALAAS</span>
+          </h1>
+          <p class="roles">
+            <span class="roles-label">I build</span>
+            <span class="roles-swap" data-roles='["interactive websites","fast web apps","delightful UIs","pixel-perfect layouts"]'>interactive websites</span>
+          </p>
+          <div class="hero-ctas">
+            <a href="#work" class="btn btn--solid" data-magnetic>view my work <span class="btn-arrow">↓</span></a>
+            <a href="#contact" class="btn btn--ghost" data-magnetic>get in touch</a>
+          </div>
+        </div>
+
+        <!-- Interactive terminal — visitors can actually type in it -->
+        <div class="terminal" id="terminal">
+          <div class="term-bar">
+            <span class="term-dots"><i></i><i></i><i></i></span>
+            <span class="term-title mono">zed@portfolio: ~</span>
+          </div>
+          <div class="term-body mono" id="term-body" data-lenis-prevent></div>
+          <div class="term-input-row mono">
+            <span class="term-prompt">$</span>
+            <input type="text" id="term-input" autocomplete="off" spellcheck="false" aria-label="Terminal input — type 'help' for commands" placeholder="type 'help'" />
+          </div>
+        </div>
+      </div>
+      <a class="scroll-hint mono" href="#about" aria-label="Scroll down">scroll<span class="scroll-line"></span></a>
+    </section>
+
+    <!-- ============ MARQUEE ============ -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span class="marquee-item">HTML</span><span class="marquee-item">•</span>
+        <span class="marquee-item">CSS</span><span class="marquee-item">•</span>
+        <span class="marquee-item">JAVASCRIPT</span><span class="marquee-item">•</span>
+        <span class="marquee-item">TYPESCRIPT</span><span class="marquee-item">•</span>
+        <span class="marquee-item">REACT</span><span class="marquee-item">•</span>
+        <span class="marquee-item">NODE.JS</span><span class="marquee-item">•</span>
+        <span class="marquee-item">GSAP</span><span class="marquee-item">•</span>
+        <span class="marquee-item">GIT</span><span class="marquee-item">•</span>
+        <span class="marquee-item">HTML</span><span class="marquee-item">•</span>
+        <span class="marquee-item">CSS</span><span class="marquee-item">•</span>
+        <span class="marquee-item">JAVASCRIPT</span><span class="marquee-item">•</span>
+        <span class="marquee-item">TYPESCRIPT</span><span class="marquee-item">•</span>
+        <span class="marquee-item">REACT</span><span class="marquee-item">•</span>
+        <span class="marquee-item">NODE.JS</span><span class="marquee-item">•</span>
+        <span class="marquee-item">GSAP</span><span class="marquee-item">•</span>
+        <span class="marquee-item">GIT</span><span class="marquee-item">•</span>
+      </div>
+    </div>
+
+    <!-- ============ ABOUT ============ -->
+    <section class="section" id="about">
+      <div class="section-head" data-reveal>
+        <span class="section-label mono">01 — about</span>
+        <h2 class="section-title">Curiosity,<br />compiled.</h2>
+      </div>
+      <div class="about-grid">
+        <div class="about-text" data-reveal-group>
+          <p>I'm Zed — a web developer who believes the web should feel <em>alive</em>. I care about the details most people scroll past: the easing curve of a hover state, the 40&nbsp;ms that separate "fast" from "instant", the layout that works just as well on a cracked phone screen as on a 4K monitor.</p>
+          <p>I build with modern JavaScript, semantic HTML and CSS that doesn't fight back. Lately I've been deep in animation and interaction design — making interfaces that respond, react and reward exploration.</p>
+          <p>When I'm not building for the browser, I'm building for wrists — Summit, my Apple&nbsp;Watch climbing tracker — or out with a camera chasing light.</p>
+        </div>
+        <!-- TODO: tweak these numbers to match your real story -->
+        <div class="stats" data-reveal-group>
+          <div class="stat">
+            <span class="stat-num" data-count="3" data-suffix="+">3+</span>
+            <span class="stat-label mono">years of coding</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num" data-count="12" data-suffix="+">12+</span>
+            <span class="stat-label mono">projects built</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">∞</span>
+            <span class="stat-label mono">curiosity</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SKILLS ============ -->
+    <section class="section" id="skills">
+      <div class="section-head" data-reveal>
+        <span class="section-label mono">02 — skills</span>
+        <h2 class="section-title">Tools of<br />the trade.</h2>
+      </div>
+      <div class="skills-groups">
+        <div class="skill-group" data-reveal>
+          <h3 class="mono">// frontend</h3>
+          <div class="chips">
+            <span class="chip">HTML5</span>
+            <span class="chip">CSS3</span>
+            <span class="chip">JavaScript</span>
+            <span class="chip">TypeScript</span>
+            <span class="chip">React</span>
+            <span class="chip">GSAP</span>
+            <span class="chip">Responsive Design</span>
+            <span class="chip">Accessibility</span>
+          </div>
+        </div>
+        <div class="skill-group" data-reveal>
+          <h3 class="mono">// backend &amp; tooling</h3>
+          <div class="chips">
+            <span class="chip">Node.js</span>
+            <span class="chip">REST APIs</span>
+            <span class="chip">Git &amp; GitHub</span>
+            <span class="chip">Vite</span>
+            <span class="chip">Shopify / Liquid</span>
+            <span class="chip">Python</span>
+          </div>
+        </div>
+        <div class="skill-group" data-reveal>
+          <h3 class="mono">// beyond the browser</h3>
+          <div class="chips">
+            <span class="chip">Swift / SwiftUI</span>
+            <span class="chip">watchOS</span>
+            <span class="chip">Figma</span>
+            <span class="chip">Adobe CC</span>
+            <span class="chip">Photography</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WORK ============ -->
+    <section class="section" id="work">
+      <div class="section-head" data-reveal>
+        <span class="section-label mono">03 — selected work</span>
+        <h2 class="section-title">Things I've<br />shipped &amp; started.</h2>
+      </div>
+
+      <div class="work-list">
+
+        <article class="work-row" data-preview="g1" data-initial="S">
+          <button class="row-head" aria-expanded="false">
+            <span class="row-index mono">001</span>
+            <span class="row-title">Summit</span>
+            <span class="row-tags mono">SwiftUI · watchOS · HealthKit</span>
+            <span class="row-year mono">2026</span>
+            <span class="row-arrow" aria-hidden="true">↓</span>
+          </button>
+          <div class="row-body">
+            <div class="row-body-inner">
+              <p class="row-desc">A climbing &amp; workout tracker built for Apple Watch. Logs climbs, tracks heart-rate zones and turns training data into clean, glanceable analytics — designed for chalk-covered fingers on a 45&nbsp;mm screen.</p>
+              <div class="row-stack mono">Swift · SwiftUI · HealthKit · WidgetKit</div>
+              <!-- TODO: add App Store / TestFlight link when live -->
+              <div class="row-links mono"><span class="wip-tag">in development</span></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="work-row" data-preview="g2" data-initial="P">
+          <button class="row-head" aria-expanded="false">
+            <span class="row-index mono">002</span>
+            <span class="row-title">This Portfolio</span>
+            <span class="row-tags mono">HTML · CSS · JS · GSAP</span>
+            <span class="row-year mono">2026</span>
+            <span class="row-arrow" aria-hidden="true">↓</span>
+          </button>
+          <div class="row-body">
+            <div class="row-body-inner">
+              <p class="row-desc">The site you're on right now. Hand-built from scratch — no templates, no frameworks. Custom particle field, an interactive terminal, smooth-scroll choreography and a perfect Lighthouse score as the goal.</p>
+              <div class="row-stack mono">Vanilla JS · GSAP · Lenis · Canvas API</div>
+              <!-- TODO: replace with your real GitHub repo URL -->
+              <div class="row-links mono"><a href="https://github.com/" target="_blank" rel="noopener">view source ↗</a></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="work-row wip" data-preview="g3" data-initial="V">
+          <button class="row-head" aria-expanded="false">
+            <span class="row-index mono">003</span>
+            <span class="row-title">Data-Viz Lab</span>
+            <span class="row-tags mono">D3 · Canvas · Data</span>
+            <span class="row-year mono">wip</span>
+            <span class="row-arrow" aria-hidden="true">↓</span>
+          </button>
+          <div class="row-body">
+            <div class="row-body-inner">
+              <p class="row-desc">An ongoing playground of interactive data visualisations — turning datasets into stories you can hover, drag and explore. First experiments landing soon.</p>
+              <div class="row-stack mono">D3.js · Canvas · Python</div>
+              <div class="row-links mono"><span class="wip-tag">in progress</span></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="work-row wip" data-preview="g4" data-initial="K">
+          <button class="row-head" aria-expanded="false">
+            <span class="row-index mono">004</span>
+            <span class="row-title">Kiosk — Storefront</span>
+            <span class="row-tags mono">Shopify · Liquid · UX</span>
+            <span class="row-year mono">wip</span>
+            <span class="row-arrow" aria-hidden="true">↓</span>
+          </button>
+          <div class="row-body">
+            <div class="row-body-inner">
+              <p class="row-desc">A custom Shopify storefront exploring what e-commerce feels like when performance and motion design come first. Theme built from the ground up in Liquid.</p>
+              <div class="row-stack mono">Shopify · Liquid · JavaScript</div>
+              <div class="row-links mono"><span class="wip-tag">in progress</span></div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- Floating hover preview for work rows -->
+    <div id="work-preview" aria-hidden="true">
+      <div class="preview-art"><span class="preview-initial">S</span></div>
+    </div>
+
+    <!-- ============ CONTACT ============ -->
+    <section class="section section--contact" id="contact">
+      <div class="section-head" data-reveal>
+        <span class="section-label mono">04 — contact</span>
+      </div>
+      <h2 class="contact-title" data-reveal>LET'S BUILD<br /><span class="contact-accent">SOMETHING</span></h2>
+      <div class="contact-actions" data-reveal>
+        <button class="email-btn mono" data-copy="zed.alaas@gmail.com" data-magnetic>
+          zed.alaas@gmail.com <span class="copy-hint">[ click to copy ]</span>
+        </button>
+        <div class="socials mono">
+          <!-- TODO: replace with your real profile URLs -->
+          <a href="https://github.com/" target="_blank" rel="noopener">github ↗</a>
+          <a href="https://www.linkedin.com/" target="_blank" rel="noopener">linkedin ↗</a>
+          <a href="mailto:zed.alaas@gmail.com">email ↗</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="footer-inner mono">
+      <span>© 2026 Zed Alaas — designed &amp; built from scratch</span>
+      <span id="clock" aria-label="Local time">--:--:--</span>
+      <a href="#home" class="top-btn" aria-label="Back to top">↑ top</a>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js" defer></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>
