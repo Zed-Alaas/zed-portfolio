@@ -482,30 +482,77 @@ body.cursor-hover .cursor-ring {
   text-transform: uppercase;
 }
 
-/* ---------- Skills ---------- */
-.skills-groups { display: grid; gap: 3rem; }
-.skill-group h3 {
-  font-size: 0.9rem;
-  color: var(--accent);
-  font-weight: 500;
-  margin-bottom: 1.25rem;
-  letter-spacing: 0.1em;
-}
-.chips { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-.chip {
-  font-family: var(--font-m);
-  font-size: 0.85rem;
-  padding: 0.6rem 1.2rem;
-  border: 1px solid var(--line);
-  border-radius: 100px;
+/* ---------- What I build (capabilities) ---------- */
+.section-lead {
+  margin-top: 1.5rem;
+  max-width: 60ch;
   color: #c9c7d4;
-  transition: border-color 0.25s ease, color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+  font-size: clamp(1.05rem, 1.6vw, 1.2rem);
 }
-.chip:hover {
-  border-color: var(--accent);
+.cap-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+.cap-card {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: clamp(1.75rem, 3vw, 2.75rem);
+  background: var(--surface);
+  overflow: hidden;
+  transition: border-color 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+}
+.cap-card::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cap-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  transform: translateY(-5px);
+  background: #16161f;
+}
+.cap-card:hover::before { transform: scaleX(1); }
+.cap-num { font-size: 0.8rem; color: var(--accent); }
+.cap-title {
+  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  margin: 0.9rem 0 0.85rem;
+}
+.cap-desc {
+  color: #c9c7d4;
+  font-size: 1rem;
+  max-width: 44ch;
+  margin-bottom: 1.75rem;
+}
+.cap-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  padding: 0.4rem 0.95rem;
+  border-radius: 100px;
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+.cap-card:hover .cap-tag {
   color: var(--accent);
-  background: var(--accent-dim);
-  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.cap-footnote {
+  margin-top: 2.5rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+  max-width: 70ch;
 }
 
 /* ---------- Work ---------- */
@@ -655,6 +702,7 @@ body.cursor-hover .cursor-ring {
   .scroll-hint { display: none; }
   #work-preview { display: none; }
   .term-body { height: 200px; }
+  .cap-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 480px) {
   .stats { grid-template-columns: 1fr; }
