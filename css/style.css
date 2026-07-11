@@ -23,10 +23,8 @@
 /* ---------- Reset ---------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { scroll-behavior: smooth; }
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-}
+/* NOTE: no `scroll-behavior: smooth` here — it fights Lenis (the JS smooth
+   scroller) and causes glitchy, rubber-banding scroll. JS handles anchors. */
 
 body {
   background: var(--bg);
@@ -52,28 +50,23 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .mono { font-family: var(--font-m); }
 
 /* ---------- Grain overlay ---------- */
+/* Static grain — the old animated version kept a layer 4x the viewport
+   alive on the GPU, which cost scroll smoothness for a barely-visible effect */
 .noise {
-  position: fixed; inset: -50%;
-  width: 200%; height: 200%;
+  position: fixed; inset: 0;
   pointer-events: none;
   z-index: 9998;
   opacity: 0.045;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
-  animation: grain 8s steps(10) infinite;
-}
-@keyframes grain {
-  0%, 100% { transform: translate(0, 0); }
-  20% { transform: translate(-3%, 2%); }
-  40% { transform: translate(2%, -3%); }
-  60% { transform: translate(-2%, -2%); }
-  80% { transform: translate(3%, 3%); }
 }
 
 /* ---------- Scroll progress ---------- */
 .progress-bar {
   position: fixed; top: 0; left: 0;
-  height: 2px; width: 0%;
+  height: 2px; width: 100%;
   background: var(--accent);
+  transform: scaleX(0); /* scaled via JS — transform avoids layout work on scroll */
+  transform-origin: left;
   z-index: 10001;
 }
 
@@ -107,6 +100,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border-radius: 50%;
   z-index: 9999;
   opacity: 0;
+  will-change: transform; /* own GPU layer → no repaint cost per move */
 }
 .cursor-dot {
   width: 6px; height: 6px;
@@ -151,9 +145,7 @@ body.cursor-hover .cursor-ring {
   position: fixed; top: 0; left: 0; right: 0;
   z-index: 1000;
   transition: transform 0.4s ease, background-color 0.3s ease;
-  background: linear-gradient(to bottom, rgba(10, 10, 15, 0.85), rgba(10, 10, 15, 0));
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: linear-gradient(to bottom, rgba(10, 10, 15, 0.92), rgba(10, 10, 15, 0));
 }
 .site-nav.nav-hidden { transform: translateY(-100%); }
 .nav-inner {
@@ -341,10 +333,10 @@ body.cursor-hover .cursor-ring {
 }
 
 /* ---------- Terminal ---------- */
+/* No backdrop-filter here: blurring the animated particles behind the
+   terminal forced a re-blur every frame — a major scroll/cursor jank source */
 .terminal {
-  background: rgba(19, 19, 28, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(19, 19, 28, 0.96);
   border: 1px solid var(--line);
   border-radius: 12px;
   overflow: hidden;
@@ -423,7 +415,6 @@ body.cursor-hover .cursor-ring {
 }
 @media (prefers-reduced-motion: reduce) {
   .marquee-track { animation: none; }
-  .noise { animation: none; }
 }
 
 /* ---------- Sections ---------- */
@@ -566,9 +557,9 @@ body.cursor-hover .cursor-ring {
   gap: clamp(1rem, 3vw, 2.5rem);
   padding: clamp(1.5rem, 3vw, 2.25rem) 0;
   text-align: left;
-  transition: padding-left 0.35s ease;
+  transition: transform 0.35s ease; /* transform, not padding — no layout thrash */
 }
-.row-head:hover { padding-left: 1rem; }
+.row-head:hover { transform: translateX(1rem); }
 .row-index { font-size: 0.8rem; color: var(--muted); }
 .row-title {
   font-size: clamp(1.6rem, 4.5vw, 3.25rem);

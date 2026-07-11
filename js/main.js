@@ -24,9 +24,27 @@
   let lenis = null;
   if (animate && typeof window.Lenis !== "undefined") {
     lenis = new Lenis({ duration: 1.1 });
-    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    let rafBeat = 0;
+    gsap.ticker.add((time) => { rafBeat++; if (lenis) lenis.raf(time * 1000); });
     gsap.ticker.lagSmoothing(0);
     window.lenis = lenis; // handy for debugging in devtools
+
+    // Watchdog: Lenis re-implements wheel scrolling on top of rAF. If the
+    // browser starves rAF while the page is visible (aggressive throttling,
+    // embedded/occluded windows), scrolling would feel dead or glitchy.
+    // Two consecutive stalled checks → hand scrolling back to the browser.
+    let strikes = 0;
+    const watchdog = setInterval(() => {
+      if (document.visibilityState === "visible" && rafBeat === 0) strikes++;
+      else strikes = 0;
+      if (strikes >= 2 && lenis) {
+        clearInterval(watchdog);
+        lenis.destroy(); // restores 100% native scrolling
+        lenis = null;
+        window.lenis = null;
+      }
+      rafBeat = 0;
+    }, 2500);
   }
 
   function scrollToTarget(hash) {
@@ -149,17 +167,19 @@
 
     window.addEventListener("mousemove", (e) => {
       mx = e.clientX; my = e.clientY;
+      // Move the dot in the event itself, not on the next frame — zero added lag
+      dot.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
       if (!cursorShown) { cursorShown = true; document.body.classList.add("cursor-active"); }
     }, { passive: true });
 
     document.addEventListener("mouseleave", () => document.body.classList.remove("cursor-active"));
     document.addEventListener("mouseenter", () => { if (cursorShown) document.body.classList.add("cursor-active"); });
 
+    // Only the trailing ring animates on rAF (the trail is intentional)
     (function loop() {
-      rx += (mx - rx) * 0.16;
-      ry += (my - ry) * 0.16;
-      dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
-      ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+      rx += (mx - rx) * 0.22;
+      ry += (my - ry) * 0.22;
+      ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%)`;
       requestAnimationFrame(loop);
     })();
 
@@ -197,7 +217,7 @@
       canvas.width = W * dpr; canvas.height = H * dpr;
       canvas.style.width = W + "px"; canvas.style.height = H + "px";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const target = Math.min(Math.floor((W * H) / 16000), 110);
+      const target = Math.min(Math.floor((W * H) / 22000), 80);
       pts = Array.from({ length: target }, () => ({
         x: Math.random() * W,
         y: Math.random() * H,
@@ -239,8 +259,11 @@
         if (p.y < 0) p.y = H; else if (p.y > H) p.y = 0;
       }
 
-      // Links
+      // Links — one strokeStyle + globalAlpha per line instead of building
+      // a new rgba() string per line (cheaper: no string alloc/parse per link)
       const { r, g, b } = accentRGB;
+      ctx.strokeStyle = `rgb(${r},${g},${b})`;
+      ctx.lineWidth = 1;
       for (let i = 0; i < pts.length; i++) {
         for (let j = i + 1; j < pts.length; j++) {
           const dx = pts[i].x - pts[j].x;
@@ -248,8 +271,7 @@
           const dy = pts[i].y - pts[j].y;
           const d = dx * dx + dy * dy;
           if (d < LINK * LINK) {
-            const a = (1 - Math.sqrt(d) / LINK) * 0.14;
-            ctx.strokeStyle = `rgba(${r},${g},${b},${a})`;
+            ctx.globalAlpha = (1 - Math.sqrt(d) / LINK) * 0.14;
             ctx.beginPath();
             ctx.moveTo(pts[i].x, pts[i].y);
             ctx.lineTo(pts[j].x, pts[j].y);
@@ -257,6 +279,7 @@
           }
         }
       }
+      ctx.globalAlpha = 1;
 
       // Dots
       ctx.fillStyle = "rgba(234,232,228,0.35)";
@@ -511,7 +534,7 @@
     requestAnimationFrame(() => {
       const y = window.scrollY;
       const max = document.documentElement.scrollHeight - window.innerHeight;
-      if (progress && max > 0) progress.style.width = (y / max) * 100 + "%";
+      if (progress && max > 0) progress.style.transform = `scaleX(${y / max})`;
       if (nav) {
         if (y > lastY && y > 140 && !mobileMenuOpen) nav.classList.add("nav-hidden");
         else nav.classList.remove("nav-hidden");
