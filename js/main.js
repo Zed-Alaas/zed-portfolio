@@ -208,8 +208,32 @@
     const ctx = canvas.getContext("2d");
     const hero = $(".hero");
     let W = 0, H = 0, running = true, heroVisible = true;
-    let pts = [];
+    let stars = [];  // free-drifting, twinkling background stars
+    let cons = [];   // constellation instances (anchored star groups)
     const mouse = { x: -9999, y: -9999 };
+
+    // Real constellations — simplified stick-figure layouts of the actual
+    // asterisms (normalized 0..1 boxes), lines = the classic connections.
+    const CONSTELLATIONS = [
+      { label: "URSA MAJOR", // the Big Dipper
+        pts: [[0, .10], [.20, .22], [.38, .28], [.55, .30], [.62, .55], [.88, .52], [.85, .22]],
+        lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 3]] },
+      { label: "ORION",
+        pts: [[.75, .10], [.25, .12], [.62, .48], [.50, .50], [.38, .52], [.72, .90], [.22, .88]],
+        lines: [[0, 2], [1, 4], [2, 3], [3, 4], [2, 5], [4, 6]] },
+      { label: "CASSIOPEIA",
+        pts: [[0, .10], [.22, .45], [.48, .18], [.72, .50], [.95, .25]],
+        lines: [[0, 1], [1, 2], [2, 3], [3, 4]] },
+      { label: "CYGNUS",
+        pts: [[.5, 0], [.5, .35], [.5, 1], [.08, .50], [.92, .22]],
+        lines: [[0, 1], [1, 2], [3, 1], [1, 4]] },
+    ];
+    // Where each one sits on the canvas (normalized center + relative size)
+    const PLACES_WIDE = [
+      { x: .80, y: .18, s: .30 }, { x: .10, y: .64, s: .34 },
+      { x: .32, y: .14, s: .20 }, { x: .60, y: .70, s: .26 },
+    ];
+    const PLACES_NARROW = [{ x: .68, y: .14, s: .42 }, { x: .32, y: .74, s: .46 }];
 
     function resize() {
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -217,16 +241,49 @@
       canvas.width = W * dpr; canvas.height = H * dpr;
       canvas.style.width = W + "px"; canvas.style.height = H + "px";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const target = Math.min(Math.floor((W * H) / 22000), 80);
-      pts = Array.from({ length: target }, () => ({
+
+      const target = Math.min(Math.floor((W * H) / 9000), 180);
+      stars = Array.from({ length: target }, () => ({
         x: Math.random() * W,
         y: Math.random() * H,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35,
+        vx: (Math.random() - 0.5) * 0.55,
+        vy: (Math.random() - 0.5) * 0.55,
+        r: 0.7 + Math.random() * 1.2,
+        base: 0.25 + Math.random() * 0.55,
+        tw: 0.5 + Math.random() * 1.6,      // twinkle speed
+        ph: Math.random() * Math.PI * 2,    // twinkle phase
+        tint: Math.random() < 0.16,         // a few take the accent color
       }));
+
+      const places = W < 720 ? PLACES_NARROW : PLACES_WIDE;
+      const size = Math.min(W, H);
+      cons = places.map((pl, idx) => {
+        const c = CONSTELLATIONS[idx % CONSTELLATIONS.length];
+        const s = pl.s * size;
+        const ox = pl.x * W - s / 2, oy = pl.y * H - s / 2;
+        return {
+          label: c.label,
+          lines: c.lines,
+          stars: c.pts.map(([nx, ny]) => {
+            const ax = ox + nx * s, ay = oy + ny * s * 0.9;
+            return { ax, ay, x: ax, y: ay, vx: 0, vy: 0, ph: Math.random() * Math.PI * 2 };
+          }),
+        };
+      });
     }
     resize();
     window.addEventListener("resize", resize);
+    // Rebuild when the hero itself changes size (rotation, window restore,
+    // embedded views) — window resize alone can miss these. Debounced, and
+    // only for meaningful changes, so the field doesn't rebuild on jitter.
+    if (typeof ResizeObserver !== "undefined") {
+      let roTimer = null;
+      new ResizeObserver(() => {
+        if (Math.abs(hero.offsetWidth - W) < 24 && Math.abs(hero.offsetHeight - H) < 24) return;
+        clearTimeout(roTimer);
+        roTimer = setTimeout(resize, 150);
+      }).observe(hero);
+    }
 
     hero.addEventListener("mousemove", (e) => {
       const rect = canvas.getBoundingClientRect();
@@ -238,56 +295,86 @@
     new IntersectionObserver(([entry]) => { heroVisible = entry.isIntersecting; }).observe(hero);
     document.addEventListener("visibilitychange", () => { running = !document.hidden; });
 
-    const LINK = 110, REPEL = 130;
+    const REPEL = 130;
 
     (function frame() {
       requestAnimationFrame(frame);
       if (!running || !heroVisible) return;
+      const t = performance.now() * 0.001;
       ctx.clearRect(0, 0, W, H);
+      const { r, g, b } = accentRGB;
+      const accent = `rgb(${r},${g},${b})`;
 
-      for (const p of pts) {
-        // Mouse repulsion
+      // --- background stars: drift, twinkle, scatter from the mouse ---
+      for (const p of stars) {
         const dx = p.x - mouse.x, dy = p.y - mouse.y;
         const md = Math.hypot(dx, dy);
         if (md < REPEL && md > 0.01) {
-          const f = (REPEL - md) / REPEL * 0.6;
+          const f = (REPEL - md) / REPEL * 0.8;
           p.x += (dx / md) * f;
           p.y += (dy / md) * f;
         }
         p.x += p.vx; p.y += p.vy;
-        if (p.x < 0) p.x = W; else if (p.x > W) p.x = 0;
-        if (p.y < 0) p.y = H; else if (p.y > H) p.y = 0;
-      }
+        if (p.x < -5) p.x = W + 5; else if (p.x > W + 5) p.x = -5;
+        if (p.y < -5) p.y = H + 5; else if (p.y > H + 5) p.y = -5;
 
-      // Links — one strokeStyle + globalAlpha per line instead of building
-      // a new rgba() string per line (cheaper: no string alloc/parse per link)
-      const { r, g, b } = accentRGB;
-      ctx.strokeStyle = `rgb(${r},${g},${b})`;
-      ctx.lineWidth = 1;
-      for (let i = 0; i < pts.length; i++) {
-        for (let j = i + 1; j < pts.length; j++) {
-          const dx = pts[i].x - pts[j].x;
-          if (dx > LINK || dx < -LINK) continue;
-          const dy = pts[i].y - pts[j].y;
-          const d = dx * dx + dy * dy;
-          if (d < LINK * LINK) {
-            ctx.globalAlpha = (1 - Math.sqrt(d) / LINK) * 0.14;
-            ctx.beginPath();
-            ctx.moveTo(pts[i].x, pts[i].y);
-            ctx.lineTo(pts[j].x, pts[j].y);
-            ctx.stroke();
-          }
-        }
-      }
-      ctx.globalAlpha = 1;
-
-      // Dots
-      ctx.fillStyle = "rgba(234,232,228,0.35)";
-      for (const p of pts) {
+        ctx.globalAlpha = p.base * (0.55 + 0.45 * Math.sin(t * p.tw + p.ph));
+        ctx.fillStyle = p.tint ? accent : "rgb(234,232,228)";
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 1.4, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
       }
+
+      // --- constellations: keep their true shape, drift gently, shy from mouse ---
+      ctx.lineWidth = 1;
+      for (const c of cons) {
+        for (const s of c.stars) {
+          // wander target around the anchor, spring toward it
+          const wx = s.ax + Math.sin(t * 0.6 + s.ph) * 5;
+          const wy = s.ay + Math.cos(t * 0.5 + s.ph * 1.3) * 5;
+          s.vx += (wx - s.x) * 0.02;
+          s.vy += (wy - s.y) * 0.02;
+          const dx = s.x - mouse.x, dy = s.y - mouse.y;
+          const md = Math.hypot(dx, dy);
+          if (md < REPEL && md > 0.01) {
+            const f = (REPEL - md) / REPEL * 0.5;
+            s.vx += (dx / md) * f;
+            s.vy += (dy / md) * f;
+          }
+          s.vx *= 0.9; s.vy *= 0.9;
+          s.x += s.vx; s.y += s.vy;
+        }
+
+        // the classic connecting lines
+        ctx.strokeStyle = accent;
+        ctx.globalAlpha = 0.35;
+        ctx.beginPath();
+        for (const [i, j] of c.lines) {
+          ctx.moveTo(c.stars[i].x, c.stars[i].y);
+          ctx.lineTo(c.stars[j].x, c.stars[j].y);
+        }
+        ctx.stroke();
+
+        // stars: soft accent halo + bright core
+        for (const s of c.stars) {
+          ctx.globalAlpha = 0.16;
+          ctx.fillStyle = accent;
+          ctx.beginPath(); ctx.arc(s.x, s.y, 6, 0, Math.PI * 2); ctx.fill();
+          ctx.globalAlpha = 0.95;
+          ctx.fillStyle = "rgb(245,244,240)";
+          ctx.beginPath(); ctx.arc(s.x, s.y, 2.1, 0, Math.PI * 2); ctx.fill();
+        }
+
+        // faint name label, so it reads as the real constellation
+        ctx.globalAlpha = 0.38;
+        ctx.fillStyle = accent;
+        ctx.font = "10px 'JetBrains Mono', monospace";
+        ctx.textAlign = "center";
+        let cx = 0, maxY = 0;
+        for (const s of c.stars) { cx += s.x; if (s.y > maxY) maxY = s.y; }
+        ctx.fillText(c.label, cx / c.stars.length, maxY + 22);
+      }
+      ctx.globalAlpha = 1;
     })();
   }
 
